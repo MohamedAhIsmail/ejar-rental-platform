@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "password": "Test@123",
+    "phone": "+2010000001",
+    "gender": "male",
+    "address": "123 Big street",
+    "id_number": "28802155600116",
+    "personal_pic": "https://static.vecteezy.com/system/resources/previews/026/619/142/non_2x/default-avatar-profile-icon-of-social-media-user-photo-image-vector.jpg"
+  }
+]

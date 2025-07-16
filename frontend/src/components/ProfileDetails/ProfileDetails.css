@@ -1,0 +1,14 @@
+/* Color the edit profile button */
+.btn-blue {
+  background: #562ddd !important;
+  border: #562ddd !important;
+}
+
+.btn-blue:hover {
+  background: #4b27be !important;
+}
+
+.btn-blue:active {
+  background: #4122a7 !important; /* Even darker shade */
+  border: #4122a7 !important;
+}

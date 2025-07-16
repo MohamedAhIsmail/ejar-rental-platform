@@ -1,0 +1,22 @@
+.chat-sidebar {
+  overflow-y: scroll;
+  border-right: 1px solid #ddd;
+  width: 25%;
+}
+@media (max-width: 1400px) {
+  .chat-sidebar {
+    width: 33.33%;
+  }
+}
+@media (max-width: 1200px) {
+  .chat-sidebar {
+    width: 40%;
+  }
+}
+
+@media (max-width: 992px) {
+  .chat-sidebar {
+    border-right: 0px solid #ddd;
+    width: 100%;
+  }
+}

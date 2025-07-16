@@ -1,0 +1,38 @@
+
+  .card-body {
+    padding: 16px;
+    flex-grow: 1;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .card-title {
+    text-align: center;
+    font-size: 25px;
+    margin: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  
+  .card-text {
+    font-size: 1.0rem;
+    color: #555;
+    margin-bottom: 6px;
+  }
+  
+  .btn-secandry {
+    background-color: #562DDD;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 8px;
+    width: calc(100% - 32px);
+    transition: background-color 0.2s ease;
+  }
+  
+ 

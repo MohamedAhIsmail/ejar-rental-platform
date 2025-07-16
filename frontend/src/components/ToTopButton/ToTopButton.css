@@ -1,0 +1,22 @@
+.to-top-button {
+  position: fixed;
+  bottom: 20px;
+  right: -60px;
+  width: 35px;
+  height: 35px;
+  font-size: 16px;
+  background-color: #942153;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: right 0.3s ease-in-out;
+}
+
+.to-top-button.visible {
+  right: 20px;
+}
+
+.to-top-button:hover {
+  background-color: #a7265e;
+}

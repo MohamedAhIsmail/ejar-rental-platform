@@ -1,0 +1,30 @@
+.no-search-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    animation: fadeInUp 0.5s ease-in-out;
+  }
+  
+  .no-search-message {
+    color: #562ddd;
+    font-weight: bold;
+    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .no-search-message .icon {
+    font-size: 50px;
+    color: #562ddd;
+    animation: pulse 1.5s infinite;
+  }
+  
+  .no-search-message p {
+    font-size: 16px;
+    margin: 0;
+  }
+  

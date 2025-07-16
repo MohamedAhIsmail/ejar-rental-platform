@@ -1,0 +1,23 @@
+.square-image {
+  width: 100%;
+  padding-top: 100%;
+  position: relative;
+}
+
+.square-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.square-image ReactImageMagnify
+{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

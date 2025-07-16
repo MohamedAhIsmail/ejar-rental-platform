@@ -1,0 +1,55 @@
+.items-section {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 8%;
+}
+
+.items-section .slick-prev,
+.items-section .slick-next {
+  top: -64px !important;
+}
+
+.items-section .item .price {
+  color: #b72a67;
+}
+
+.newItem {
+  background-color: #06c954;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.item .card-icons i {
+  padding: 8px;
+  color: #000000;
+  background-color: #ffffff;
+  border-radius: 50%;
+}
+
+.items-section .loadmore-btn {
+  background-color: #a7265e;
+  border: none;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 4px;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.items-section .loadmore-btn:hover {
+  background-color: #942153;
+}
+
+.star.filled i {
+  color: #ffad33;
+}
+
+.star.empty i {
+  color: #666;
+}

@@ -1,0 +1,41 @@
+.start-renting {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.text .rent-head {
+  color: #b72a67;
+  font-weight: 700;
+}
+
+.rent-btn {
+  background-color: #b72a67;
+  border: none;
+  color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 4px;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+.rent-btn:hover {
+  background-color: #a7265e;
+}
+
+@media (max-width: 768px) {
+  .text .rent-head {
+    font-size: 22px;
+  }
+  .text .rent-p {
+    font-size: 16px !important;
+    padding-left: 5px;
+  }
+  .text p:last-child {
+    font-size: 17px !important;
+    padding-left: 5px;
+  }
+  .bt {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

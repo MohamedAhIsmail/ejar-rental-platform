@@ -1,0 +1,45 @@
+.no-category-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    animation: fadeInUp 0.5s ease-in-out;
+  }
+  
+  .no-category-message {
+    color: #562ddd;
+    font-weight: bold;
+    font-size: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .no-category-message .icon {
+    font-size: 48px;
+    color: #562ddd;
+    animation: pulse 1.5s infinite;
+  }
+  
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+  

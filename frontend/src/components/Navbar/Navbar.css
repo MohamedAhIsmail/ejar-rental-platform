@@ -1,0 +1,73 @@
+/* Width of the side bar */
+.offcanvas.offcanvas-end {
+  width: 275px !important;
+}
+
+/* TODO: Make the wishlist when clicked turn to full red button */
+.nav-link.active {
+  position: relative;
+  font-weight: bold;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+}
+
+/* Color the list an item button */
+.btn-primary {
+  background: #b72a67 !important;
+  border: #b72a67 !important;
+}
+
+.btn-primary:hover {
+  background: #a7265e !important;
+}
+
+.btn-primary:active {
+  background: #942153 !important; /* Even darker shade */
+  border: #942153 !important;
+}
+
+.btn-secondary {
+  background: #562ddd !important;
+  border: #562ddd !important;
+}
+
+.notification-dropdown {
+  width: 20vw;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+@media (max-width: 992px) {
+  .notification-dropdown {
+    width: 175px;
+  }
+}
+
+.notification-item {
+  border-bottom: 1px solid #eee;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item .dropdown-item {
+  padding: 10px 15px;
+  white-space: normal;
+}
+
+.notification-item .dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.nav-link .fa-heart {
+  color: #000000a1;
+  font-size: 1.1rem;
+}
+
+.nav-link .fa-heart:hover {
+  color: #000000;
+  transform: scale(1);
+}

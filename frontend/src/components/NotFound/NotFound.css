@@ -1,0 +1,103 @@
+/* Wrapper layout */
+.not-found-wrapper {
+    background-color: transparent;
+  }
+  
+  /* Heading & icon color */
+  .text-main-color {
+    color: #B72A67;
+  }
+  
+  /* Heading */
+  .not-found-wrapper h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+  
+  /* Paragraphs */
+  .not-found-wrapper p {
+    font-size: 1rem;
+    color: #6c757d;
+  }
+  
+  /* Scoped main button */
+.not-found-wrapper .btn-main {
+    background-color: #B72A67 !important;
+    color: white !important;
+    border-radius: 2rem;
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.25s ease-in-out;
+    border: none;
+  }
+  
+  .not-found-wrapper .btn-main:hover {
+    background-color: #9c2056 !important;
+    transform: translateY(-2px);
+  }
+  
+  /* Scoped outline button */
+  .not-found-wrapper .btn-outline-dark {
+    background-color: white;
+    color: #212529;
+    border-radius: 2rem;
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    border: 1px solid #ced4da;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.25s ease-in-out;
+  }
+  
+  .not-found-wrapper .btn-outline-dark:hover {
+    background-color: #B72A67;
+    color: white;
+    border-color: #B72A67;
+    transform: translateY(-2px);
+  }
+  
+  
+  /* Support link */
+  .contact-link {
+    color: #B72A67;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .contact-link:hover {
+    color: #9c2056;
+    text-decoration: underline;
+  }
+  
+  /* Keyboard accessibility */
+  .btn:focus-visible {
+    outline: 3px solid #f5c3d1;
+    outline-offset: 2px;
+  }
+  
+  /* Icon animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .subtle-icon {
+    opacity: 0.9;
+    animation: fadeIn 1.2s ease-in-out;
+  }
+  
+  /* Gap fix */
+  .d-flex.gap-3 > * {
+    margin: 0.5rem;
+  }
+  
