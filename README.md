@@ -13,7 +13,7 @@ This system was developed as part of our **graduation project** for the **ITI IC
 
 | App Name           | Description                                                  | GitHub Repository                                              |
 |--------------------|--------------------------------------------------------------|----------------------------------------------------------------|
-| **Customer Website** | React-based platform where users browse and rent items         | [Customer Frontend](https://github.com/MohamedAhIsmail/ejar-rental-platform-react) |
+| **User Website** | React-based platform where users browse and rent items         | [User Frontend](https://github.com/MohamedAhIsmail/ejar-rental-platform-react) |
 | **Admin Dashboard**  | Angular dashboard for managing users, listings, and stats      | [Admin Dashboard](https://github.com/MohamedAhIsmail/ejar-rental-dashboard-angular)          |
 | **Backend API**      | Node.js + Express API serving both apps with auth, data & logic | [Backend API](https://github.com/MohamedAhIsmail/ejar-rental-platform-node)               |
 
