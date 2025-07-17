@@ -1,0 +1,494 @@
+<div class="p-4 position-relative">
+  <!-- Heading -->
+  <h4 class="fw-semibold mb-3">
+    <i class="bi bi-box-seam me-2"></i>
+    Manage Products
+  </h4>
+
+  <!-- Floating Admin Tips Button -->
+  <button
+    class="btn btn-info btn-sm rounded-circle shadow position-absolute top-0 end-0 mt-4 me-4"
+    (click)="showTips = !showTips"
+    title="Toggle Admin Tips"
+  >
+    <i
+      class="bi"
+      [ngClass]="{ 'bi-lightbulb': !showTips, 'bi-lightbulb-fill': showTips }"
+    ></i>
+  </button>
+
+  <!-- Floating Tips Panel -->
+  @if (showTips) {
+  <div
+    class="alert alert-info position-absolute top-0 end-0 me-5 mt-5 shadow animate__animated animate__fadeIn dash-alert"
+    style="z-index: 999; width: 500px"
+  >
+    <strong>🧠 Admin Tips:</strong><br />
+    - Search by <strong>Name</strong>, <strong>Owner</strong>, or
+    <strong>Status</strong>.<br />
+    - Filter by <strong>Status</strong> or sort by <strong>Date</strong>.<br />
+    - Click <strong>Owner</strong> name to view profile.<br />
+    - Edit with <i class="bi bi-pencil-square"></i>.<br />
+    - Bulk delete with checkboxes.<br />
+    - Export to CSV with <i class="bi bi-download"></i>.
+  </div>
+  }
+
+  <!-- Filters -->
+  <div class="d-flex gap-3 align-items-center mb-3 flex-wrap page-filter">
+    <input
+      class="form-control w-auto"
+      type="text"
+      [(ngModel)]="searchTerm"
+      placeholder="🔍 Search products..."
+    />
+    <select class="form-select w-auto" [(ngModel)]="filterStatus">
+      <option value="">All Statuses</option>
+      <option value="available">Available</option>
+      <option value="rented">Rented</option>
+      <option value="unavailable">Unavailable</option>
+    </select>
+    <select class="form-select w-auto" [(ngModel)]="sortOption">
+      <option value="name">Sort by Name</option>
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+    </select>
+    <button class="btn btn-outline-success" (click)="exportToCSV()">
+      <i class="bi bi-download"></i> Export CSV
+    </button>
+    <button
+      class="btn btn-outline-danger"
+      [disabled]="!selectedProductIds.length"
+      (click)="bulkDeleteProducts()"
+    >
+      <i class="bi bi-trash3"></i> Delete Selected
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>
+            <input type="checkbox" (change)="toggleAllProducts($event)" />
+          </th>
+          <th>IMAGE</th>
+          <th>NAME</th>
+          <th>CATEGORY</th>
+          <th>STATUS</th>
+          <th>OWNER</th>
+          <th>CREATED AT</th>
+          <th>DAILY PRICE</th>
+          <th>PRODUCT ID</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading()) {
+        <tr>
+          <td
+            colspan="10"
+            class="text-center py-5 animate__animated animate__fadeIn"
+          >
+            <div
+              class="spinner-border text-primary"
+              role="status"
+              style="width: 3rem; height: 3rem"
+            ></div>
+            <div class="mt-2 text-muted">Fetching products...</div>
+          </td>
+        </tr>
+        } @else if (paginatedProducts().length > 0) { @for (product of
+        paginatedProducts(); track product._id) {
+        <tr>
+          <td>
+            <input
+              type="checkbox"
+              [checked]="selectedProductIds.includes(product._id)"
+              (change)="toggleProductSelection(product._id)"
+            />
+          </td>
+          <td>
+            <img
+              [src]="product.images[0]"
+              class="rounded-circle me-2"
+              width="40"
+              height="40"
+              alt="{{ product.name }}"
+              style="cursor: pointer"
+              (click)="openZoomModal(product.images, product.name)"
+              (error)="onImageError($event)"
+            />
+          </td>
+          <td>{{ product?.name }}</td>
+          <td>{{ product?.category?.name | titlecase }}</td>
+          <td>
+            <span
+              class="badge rounded-pill px-3 py-2 fw-semibold"
+              [ngClass]="{
+                'bg-success text-white': product.status === 'available',
+                'bg-warning text-white': product.status === 'rented',
+                'bg-danger text-white': product.status === 'unavailable'
+              }"
+            >
+              {{ product.status | titlecase }}
+            </span>
+          </td>
+          <td  >
+            {{ product?.renterId?.userName }}
+            <i (click)="profile(product.renterId._id)" class="  fa-solid fa-up-right-from-square"></i>
+
+          </td>
+     
+          <td>{{ product.createdAt | date : "d MMM y" }}</td>
+          <td>{{ product.daily }} EGP</td>
+          <td>{{ product._id | shortId }}</td>
+          <td>
+            <button
+              class="btn btn-outline-primary btn-sm me-1"
+              (click)="openEditModal(product)"
+            >
+            <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            <button
+              class="btn btn-outline-danger btn-sm me-1"
+              (click)="confirmingDeleteProductId = product._id"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+        } } @else {
+        <tr>
+          <td colspan="10" class="text-center py-5 text-muted">
+            <i class="bi bi-box-seam fs-4 me-2 text-secondary"></i>
+            No matching products found.
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Zoom Modal -->
+  @if (zoomedImages.length) {
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block; background: rgba(0, 0, 0, 0.7)"
+  >
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content bg-transparent border-0">
+        <div class="modal-header border-0">
+          <h5 class="text-white">{{ zoomedImageTitle }}</h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            (click)="closeZoomModal()"
+          ></button>
+        </div>
+        <div class="modal-body text-center">
+          <img
+            [src]="mainImage"
+            (error)="onImageError($event)"
+            class="img-fluid rounded shadow-lg"
+            style="max-height: 70vh"
+          />
+          <div class="d-flex justify-content-center mt-3 flex-wrap gap-2">
+            @for (img of zoomedImages; track img) {
+            <img
+              [src]="img"
+              class="rounded border"
+              (click)="mainImage = img"
+              [ngStyle]="{
+                width: '80px',
+                height: '80px',
+                objectFit: 'cover',
+                cursor: 'pointer',
+                border:
+                  mainImage === img ? '2px solid blue' : '2px solid transparent'
+              }"
+              (error)="onImageError($event)"
+            />
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Edit Modal -->
+  @if (showEditModal()) {
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block; background: rgba(0, 0, 0, 0.5)"
+  >
+    <div
+      class="modal-dialog modal-lg modal-dialog-centered"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-content shadow-lg">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Product</h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeEditModal()"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Product Name</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="editProduct()!.name"
+              placeholder="Enter product name"
+              (blur)="validateField('name')"
+            />
+            @if (formErrors['name']) {
+            <small class="text-danger">{{ formErrors["name"] }}</small>
+            }
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Description</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="editProduct()!.description"
+              placeholder="Enter product description"
+              rows="3"
+              (blur)="validateField('description')"
+            ></textarea>
+            @if (formErrors['description']) {
+            <small class="text-danger">{{ formErrors["description"] }}</small>
+            }
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Category</label>
+            <select
+              class="form-control"
+              [(ngModel)]="editProduct()!.category._id"
+              (blur)="validateField('category')"
+            >
+              <option value="">Select a category</option>
+              @for (cat of categories(); track cat._id) {
+              <option [value]="cat._id">{{ cat?.name }}</option>
+              }
+            </select>
+            @if (formErrors['category']) {
+            <small class="text-danger">{{ formErrors["category"] }}</small>
+            }
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Status</label>
+            <select
+              class="form-control"
+              [(ngModel)]="editProduct()!.status"
+              (blur)="validateField('status')"
+            >
+              <option value="available">Available</option>
+              <option value="rented">Rented</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+            @if (formErrors['status']) {
+            <small class="text-danger">{{ formErrors["status"] }}</small>
+            }
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Daily Price (EGP)</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="editProduct()!.daily"
+              placeholder="Enter daily price"
+              (blur)="validateField('price')"
+            />
+            @if (formErrors['price']) {
+            <small class="text-danger">{{ formErrors["price"] }}</small>
+            }
+          </div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button class="btn btn-secondary" (click)="closeEditModal()">
+            Cancel
+          </button>
+          <button class="btn btn-primary" (click)="updateProduct()">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (confirmingDeleteProductId) {
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block; background: rgba(0, 0, 0, 0.5)"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Confirm Deletion</h5>
+          <button class="btn-close" (click)="cancelDelete()"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p>
+            Are you sure you want to <strong>delete</strong> this product?<br />This
+            action cannot be undone.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cancelDelete()">
+            Cancel
+          </button>
+          <button class="btn btn-danger" (click)="proceedDelete()">
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Bulk Delete Confirmation Modal -->
+  @if (showBulkDeleteConfirm) {
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block; background: rgba(0, 0, 0, 0.5)"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Confirm Bulk Deletion</h5>
+          <button class="btn-close" (click)="cancelBulkDelete()"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p>
+            You are about to
+            <strong>delete {{ selectedProductIds.length }}</strong>
+            product(s).<br />This action is permanent.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cancelBulkDelete()">
+            Cancel
+          </button>
+          <button class="btn btn-danger" (click)="proceedBulkDelete()">
+            Yes, Delete All
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Pagination -->
+  <div
+    class="d-flex justify-content-between align-items-center flex-wrap gap-2 table-pagination"
+  >
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <div class="small text-muted">
+        Showing {{ getShowingCount() }} of
+        {{ filteredProducts().length }} products
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <label class="mb-0 small text-muted">Rows per page:</label>
+        <select
+          class="form-select form-select-sm w-auto"
+          [(ngModel)]="pageSize"
+          (change)="currentPage = 1"
+        >
+          @for (size of [5, 10, 20, 50]; track size) {
+          <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end align-items-center gap-2">
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button
+            class="page-link"
+            (click)="currentPage = currentPage - 1"
+            aria-label="Previous"
+          >
+            «
+          </button>
+        </li>
+        @for (page of totalPagesArray(); track page) {
+        <li class="page-item" [class.active]="page === currentPage">
+          <button class="page-link" (click)="currentPage = page">
+            {{ page }}
+          </button>
+        </li>
+        }
+        <li class="page-item" [class.disabled]="currentPage === totalPages()">
+          <button
+            class="page-link"
+            (click)="currentPage = currentPage + 1"
+            aria-label="Next"
+          >
+            »
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- No Products to Export Modal -->
+  @if (showNoProductsModal) {
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block; background: rgba(0, 0, 0, 0.5)"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow">
+        <div class="modal-header">
+          <h5 class="modal-title text-warning">Nothing to Export</h5>
+          <button
+            class="btn-close"
+            (click)="showNoProductsModal = false"
+          ></button>
+        </div>
+        <div class="modal-body text-center">
+          <p>No products match your current filters.</p>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            (click)="showNoProductsModal = false"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Toast -->
+  @if (showToast) {
+  <div
+    class="toast-container position-fixed bottom-0 end-0 p-3"
+    style="z-index: 9999"
+  >
+    <div
+      class="toast show align-items-center text-white"
+      [ngClass]="{
+        'bg-success': toastType === 'success',
+        'bg-danger': toastType === 'error'
+      }"
+    >
+      <div class="toast-body">{{ toastMessage }}</div>
+    </div>
+  </div>
+  }
+</div>

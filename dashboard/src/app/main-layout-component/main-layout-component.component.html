@@ -1,0 +1,9 @@
+<div class="container-fluid p-0">
+  <app-sidebar (sidebarToggled)="onSidebarToggled($event)"></app-sidebar>
+  <div class="main-wrapper" [ngClass]="{ shifted: isSidebarCollapsed }">
+    <!-- <app-header></app-header> -->
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

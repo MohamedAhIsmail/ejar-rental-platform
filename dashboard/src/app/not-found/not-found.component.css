@@ -1,0 +1,62 @@
+
+.not-found-wrapper {
+  background-color: transparent;
+}
+
+.text-main-color {
+  color: #B72A67;
+}
+
+.btn-main {
+  background-color: #B72A67;
+  color: white;
+  border-radius: 2rem;
+  padding: 0.6rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.25s ease-in-out;
+}
+
+.btn-main:hover {
+  background-color: darken(#B72A67, 10%);
+  transform: translateY(-2px);
+}
+
+.btn-outline-dark {
+  border-radius: 2rem;
+  font-weight: 500;
+  padding: 0.6rem 1.5rem;
+  color: #212529;
+  border: 1px solid #ced4da;
+  background-color: white;
+  transition: all 0.25s ease-in-out;
+}
+
+.btn-outline-dark:hover {
+  background-color: #B72A67;
+  color: #fff;
+  border-color: #B72A67;
+  transform: translateY(-2px);
+}
+
+/* Optional: Add focus-visible for keyboard accessibility */
+.btn:focus-visible {
+  outline: 3px solid lighten(#B72A67, 30%);
+  outline-offset: 2px;
+}
+
+.subtle-icon {
+  opacity: 0.9;
+  animation: fadeIn 1.2s ease-in-out;
+}
+
+/* Subtle Fade */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

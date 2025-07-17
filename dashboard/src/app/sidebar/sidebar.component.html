@@ -1,0 +1,54 @@
+  <div class="sidebar" [ngClass]="{'collapsed': isCollapsed}">
+    <div class="sidebar-header">
+      @if (!isCollapsed && !isSmallScreen) {
+        <img [src]="LogoImage" alt="Logo" class="logo" />
+      }
+      @if (isSmallScreen) {
+        <img [src]="LogoImage" alt="Logo" class="logo-small" />
+      } @else {
+        <div class="toggle-btn" (click)="toggleSidebar()">
+          @if (isCollapsed) {
+            <i class="fas fa-bars"></i>
+          } @else {
+            <i class="fas fa-times"></i>
+          }
+        </div>
+      }
+    </div>
+    <div class="menus mt-3">
+      <div class="top">
+        <ul class="nav flex-column">
+          @for (item of menuItems; track item.path) {
+            <li class="nav-item">
+              <a class="nav-link" [routerLink]="item.path" routerLinkActive="active">
+                <i [class]="item.icon"></i>
+                @if (!isCollapsed) {
+                  <span>{{ item.label }}</span>
+                }
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+      <div class="down">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="http://localhost:5173/" target="_blank">
+              <i class="fa-solid fa-up-right-from-square"></i>
+              @if (!isCollapsed) {
+                <span>To Website</span>
+              }
+            </a>
+          </li>
+          <li class="nav-item logout" (click)="logout()">
+            <a class="nav-link">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+              @if (!isCollapsed) {
+                <span>Logout</span>
+              }
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>

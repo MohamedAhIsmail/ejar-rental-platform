@@ -1,0 +1,39 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  color: #8B909A;
+  padding: 10px 20px;
+  height: 64px;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color:#F5F7FA;
+}
+
+.right-section {
+  max-width: 300px;
+}
+
+.btn-link {
+  text-decoration: none;
+  color: #8B909A;
+}
+
+.btn-link:hover {
+  color: #B72A67;
+}

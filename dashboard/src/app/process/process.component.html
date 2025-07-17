@@ -1,0 +1,492 @@
+<div class="p-4 position-relative">
+  <!-- Heading -->
+  <h4 class="fw-semibold mb-3">
+    <i class="bi bi-list-check me-2"></i>
+    Manage Rental Processes
+  </h4>
+
+  <!-- Floating Admin Tips Button -->
+  <button
+    class="btn btn-info btn-sm rounded-circle shadow position-absolute top-0 end-0 mt-4 me-4"
+    (click)="showTips = !showTips"
+    title="Toggle Admin Tips"
+    aria-label="Toggle Admin Tips"
+  >
+    <i
+      class="bi"
+      [ngClass]="{
+        'bi-lightbulb': !showTips,
+        'bi-lightbulb-fill': showTips
+      }"
+    ></i>
+  </button>
+
+  <!-- Floating Tips Panel -->
+  @if (showTips) {
+    <div
+      class="alert alert-info position-absolute top-0 end-0 me-5 mt-5 shadow animate__animated animate__fadeIn dash-alert"
+      style="z-index: 999; width: 500px"
+    >
+      <strong>🧠 Admin Tips for Managing Processes:</strong><br />
+      - Search processes by <strong>Product Name</strong>,
+      <strong>Renter Name</strong>, or <strong>Status</strong>.<br />
+      - Use filters to view by <strong>Status</strong> or sort by
+      <strong>Date</strong>.<br />
+      - Bulk delete processes with checkboxes.<br />
+      - Edit process details with <i class="bi bi-pencil-square"></i>.<br />
+      - Export data to CSV with <i class="bi bi-download"></i>.
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="d-flex gap-3 align-items-center mb-3 flex-wrap page-filter">
+    <input
+      class="form-control w-auto"
+      type="text"
+      [(ngModel)]="searchTerm"
+      placeholder="🔍 Search processes..."
+    />
+    <select class="form-select w-auto" [(ngModel)]="filterStatus">
+      <option value="">All Statuses</option>
+      <option value="pending">Pending</option>
+      <option value="canceled">Canceled</option>
+      <option value="in progress">In Progress</option>
+      <option value="finished">Finished</option>
+    </select>
+
+    <select class="form-select w-auto" [(ngModel)]="sortOption">
+      <option value="productName">Sort by Product Name</option>
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+    </select>
+
+    <button class="btn btn-outline-success" (click)="exportToCSV()">
+      <i class="bi bi-download"></i> Export CSV
+    </button>
+
+    <button
+      class="btn btn-outline-danger"
+      [disabled]="!selectedProcessIds.length"
+      (click)="bulkDeleteProcesses()"
+    >
+      <i class="bi bi-trash3"></i> Delete Selected
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>
+            <input type="checkbox" (change)="toggleAllProcesses($event)" />
+          </th>
+          <th>PRODUCT IMAGE</th>
+          <th>PRODUCT NAME</th>
+          <th>RENTER NAME</th>
+          <th>START DATE</th>
+          <th>END DATE</th>
+          <th>STATUS</th>
+          <th>PRICE</th>
+          <th>CREATED AT</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading()) {
+          <tr>
+            <td
+              colspan="10"
+              class="text-center py-5 animate__animated animate__fadeIn"
+            >
+              <div
+                class="spinner-border text-primary"
+                role="status"
+                style="width: 3rem; height: 3rem"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <div class="mt-2 text-muted">Fetching processes...</div>
+            </td>
+          </tr>
+        } @else if (paginatedProcesses().length > 0) {
+          @for (process of paginatedProcesses(); track process._id) {
+            <tr>
+              <td>
+                <input
+                  type="checkbox"
+                  [checked]="selectedProcessIds.includes(process._id)"
+                  (change)="toggleProcessSelection(process._id)"
+                />
+              </td>
+              <td>
+                @if (process.productId?.images?.[0] && !imageErrors[process._id]) {
+                  <img
+                    [src]="process.productId.images[0]"
+                    class="rounded-circle me-2"
+                    width="40"
+                    height="40"
+                    alt="{{ process.productId.name || 'Unknown Product' }}"
+                    style="cursor: pointer"
+                    (click)="openZoomModal(process.productId.images, process.productId.name)"
+                    (error)="onImageError($event, process._id)"
+                  />
+                } @else {
+                  <i class="bi bi-image text-muted" style="font-size: 40px;"></i>
+                }
+              </td>
+              <td class="text-capitalize">{{ process.productId?.name || 'N/A' }}</td>
+              <td class="text-capitalize">
+                {{ process.renterId?.userName || 'N/A' }}
+              </td>
+              <td>{{ process.startDate | date : "d MMM y" }}</td>
+              <td>{{ process.endDate | date : "d MMM y" }}</td>
+              <td>
+                <span
+                  class="badge rounded-pill px-3 py-2 fw-semibold text-capitalize"
+                  [ngClass]="{
+                    'bg-warning text-white': process.status === 'pending',
+                    'bg-danger text-white': process.status === 'canceled',
+                    'bg-info text-white': process.status === 'in progress',
+                    'bg-success text-white': process.status === 'finished'
+                  }"
+                >
+                  {{ process.status }}
+                </span>
+              </td>
+              <td>{{ process.price }} EGP</td>
+              <td>{{ process.createdAt | date : "d MMM y" }}</td>
+              <td>
+                <button
+                  class="btn btn-outline-primary btn-sm me-1"
+                  (click)="openEditModal(process)"
+                >
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button
+                  class="btn btn-outline-danger btn-sm me-1"
+                  (click)="confirmingDeleteProcessId = process._id"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        } @else {
+          <tr>
+            <td colspan="10" class="text-center py-5 text-muted">
+              <i class="bi bi-inbox-fill fs-4 me-2 text-secondary"></i>
+              No matching processes found.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Zoom Modal -->
+  @if (zoomedImages.length) {
+    <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.7)">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0">
+          <div class="modal-header border-0">
+            <h5 class="text-white">{{ zoomedImageTitle }}</h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeZoomModal()"></button>
+          </div>
+          <div class="modal-body text-center">
+            <img
+              [src]="mainImage"
+              (error)="onImageError($event)"
+              class="img-fluid rounded shadow-lg"
+              style="max-height: 90vh"
+            />
+            <div class="d-flex justify-content-center mt-3 flex-wrap gap-2">
+              @for (img of zoomedImages; track img) {
+                <img
+                  [src]="img"
+                  class="rounded border"
+                  (click)="mainImage = img"
+                  [ngStyle]="{
+                    width: '80px',
+                    height: '80px',
+                    objectFit: 'cover',
+                    cursor: 'pointer',
+                    border: mainImage === img ? '2px solid blue' : '2px solid transparent'
+                  }"
+                  (error)="onImageError($event)"
+                />
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Edit Modal -->
+  @if (showEditModal()) {
+    <div class="modal fade show" tabindex="-1" style="display: block">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Process</h5>
+            <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Product Name</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="editProcess()!.productId.name"
+                disabled
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Renter Name</label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="editProcess()!.renterId.userName"
+                disabled
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Start Date</label>
+              <input
+                type="date"
+                class="form-control"
+                [(ngModel)]="editProcess()!.startDate"
+                (blur)="validateField('startDate')"
+              />
+              @if (formErrors['startDate']) {
+                <small class="text-danger">{{ formErrors["startDate"] }}</small>
+              }
+            </div>
+            <div class="mb-3">
+              <label class="form-label">End Date</label>
+              <input
+                type="date"
+                class="form-control"
+                [(ngModel)]="editProcess()!.endDate"
+                (blur)="validateField('endDate')"
+              />
+              @if (formErrors['endDate']) {
+                <small class="text-danger">{{ formErrors["endDate"] }}</small>
+              }
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Status</label>
+              <select
+                class="form-control"
+                [(ngModel)]="editProcess()!.status"
+                (blur)="validateField('status')"
+              >
+                <option value="pending">Pending</option>
+                <option value="canceled">Canceled</option>
+                <option value="in progress">In Progress</option>
+                <option value="finished">Finished</option>
+              </select>
+              @if (formErrors['status']) {
+                <small class="text-danger">{{ formErrors["status"] }}</small>
+              }
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Price</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="editProcess()!.price"
+                (blur)="validateField('price')"
+              />
+              @if (formErrors['price']) {
+                <small class="text-danger">{{ formErrors["price"] }}</small>
+              }
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="closeEditModal()">
+              Cancel
+            </button>
+            <button class="btn btn-primary" (click)="updateProcess()">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (confirmingDeleteProcessId) {
+    <div
+      class="modal fade show"
+      tabindex="-1"
+      style="display: block; background: rgba(0, 0, 0, 0.5)"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-header">
+            <h5 class="modal-title text-danger">Confirm Deletion</h5>
+            <button class="btn-close" (click)="cancelDelete()"></button>
+          </div>
+          <div class="modal-body text-center">
+            <p>
+              Are you sure you want to <strong>delete</strong> this process?<br />
+              This action cannot be undone.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="cancelDelete()">
+              Cancel
+            </button>
+            <button class="btn btn-danger" (click)="proceedDelete()">
+              Yes, Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Bulk Delete Confirmation Modal -->
+  @if (showBulkDeleteConfirm) {
+    <div
+      class="modal fade show"
+      tabindex="-1"
+      style="display: block; background: rgba(0, 0, 0, 0.5)"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-header">
+            <h5 class="modal-title text-danger">Confirm Bulk Deletion</h5>
+            <button class="btn-close" (click)="cancelBulkDelete()"></button>
+          </div>
+          <div class="modal-body text-center">
+            <p>
+              You are about to
+              <strong>delete {{ selectedProcessIds.length }}</strong>
+              process(es).<br />
+              This action is permanent and cannot be undone.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="cancelBulkDelete()">
+              Cancel
+            </button>
+            <button class="btn btn-danger" (click)="proceedBulkDelete()">
+              Yes, Delete All
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Pagination -->
+  <div
+    class="d-flex justify-content-between align-items-center flex-wrap gap-2 table-pagination"
+  >
+    <div
+      class="d-flex justify-content-between align-items-center flex-wrap gap-2"
+    >
+      <div class="small text-muted">
+        Showing {{ getShowingCount() }} of
+        {{ filteredProcesses().length }} processes
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <label class="mb-0 small text-muted">Rows per page:</label>
+        <select
+          class="form-select form-select-sm w-auto"
+          [(ngModel)]="pageSize"
+          (change)="currentPage = 1"
+        >
+          @for (size of [5, 10, 20, 50]; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end align-items-center flex-wrap gap-2">
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button
+            class="page-link"
+            (click)="currentPage = currentPage - 1"
+            aria-label="Previous"
+          >
+            «
+          </button>
+        </li>
+        @for (page of totalPagesArray(); track page) {
+          <li class="page-item" [class.active]="page === currentPage">
+            <button class="page-link" (click)="currentPage = page">
+              {{ page }}
+            </button>
+          </li>
+        }
+        <li class="page-item" [class.disabled]="currentPage === totalPages()">
+          <button
+            class="page-link"
+            (click)="currentPage = currentPage + 1"
+            aria-label="Next"
+          >
+            »
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- No Processes to Export Modal -->
+  @if (showNoProcessesModal) {
+    <div
+      class="modal fade show"
+      tabindex="-1"
+      style="display: block; background: rgba(0, 0, 0, 0.5)"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-header">
+            <h5 class="modal-title text-warning">Nothing to Export</h5>
+            <button
+              class="btn-close"
+              (click)="showNoProcessesModal = false"
+            ></button>
+          </div>
+          <div class="modal-body text-center">
+            <p>There are no processes matching your current filters to export.</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn btn-secondary"
+              (click)="showNoProcessesModal = false"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Toast -->
+  @if (showToast) {
+    <div
+      class="toast-container position-fixed bottom-0 end-0 p-3"
+      style="z-index: 9999"
+    >
+      <div
+        class="toast show align-items-center text-white"
+        [ngClass]="{
+          'bg-success': toastType === 'success',
+          'bg-danger': toastType === 'error'
+        }"
+      >
+        <div class="d-flex">
+          <div class="toast-body">{{ toastMessage }}</div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

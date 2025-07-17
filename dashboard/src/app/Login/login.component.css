@@ -1,0 +1,68 @@
+/* login.component.css */
+.login-container {
+  max-width: 400px;
+  margin: 50px auto;
+  text-align: left;
+  font-family: sans-serif;
+}
+
+.login-container h2 {
+  color: #5e17eb;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+}
+
+.password-field {
+  display: flex;
+  align-items: center;
+}
+
+.password-field button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+button[type="submit"] {
+  width: 100%;
+  background-color: #5e17eb;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.forgot {
+  color: red;
+  display: block;
+  margin-top: 10px;
+}
+
+.dang {
+  color: red;
+}
+
+input[_ngcontent-ng-c975759461] {
+  width: 2%;
+  padding: 10px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+}
+
+

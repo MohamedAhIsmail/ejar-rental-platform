@@ -1,0 +1,53 @@
+.container-fluid {
+  display: flex;
+  overflow-x: hidden;
+}
+
+.main-wrapper {
+  flex: 1;
+  margin-left: 250px;
+  transition: margin-left 0.3s ease;
+  overflow-x: hidden;
+}
+
+.main-wrapper.shifted {
+  margin-left: 60px;
+}
+
+.content {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #ffffff;
+  color: #8b909a;
+  transition: width 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1000;
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 60px;
+  }
+
+  .sidebar.collapsed {
+    width: 60px;
+  }
+
+  .main-wrapper {
+    margin-left: 60px;
+  }
+}

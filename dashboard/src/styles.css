@@ -1,0 +1,54 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+
+.page-filter {
+  margin-top: 30px;
+  padding: 1rem;
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+.table-responsive {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+table {
+  margin-bottom: 0 !important;
+}
+
+.table thead th {
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: #212529bf;
+  padding: 1rem 0.5rem !important;
+}
+
+.table td {
+  /* padding: 1rem; */
+  color: #212529bf;
+}
+
+.table-pagination {
+  background-color: #fff;
+  padding: 0.5rem;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+
+@media(max-width:768px) {
+
+  .dash-alert {
+    width: 250px !important;
+    font-size: 10px;
+  }
+}

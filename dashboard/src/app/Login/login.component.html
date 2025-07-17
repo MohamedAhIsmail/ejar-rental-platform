@@ -1,0 +1,117 @@
+<div
+  class="container mt-5"
+  style="max-width: 600px; margin: 0 auto; min-height: 100vh"
+>
+  <h2
+    class="text-left"
+    style="
+      color: #562ddd;
+      font-size: 34px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    "
+  >
+    Log in to Ejar
+  </h2>
+
+  <div *ngIf="apiError" class="dang text-center">
+    {{ apiError }}
+  </div>
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="row g-3">
+    <div class="col-12">
+      <label>Email or Phone Number</label>
+      <input
+        type="text"
+        #inputIdentifier
+        formControlName="identifier"
+        class="form-control"
+      />
+      <div
+        class="dang col mt-3"
+        *ngIf="
+          loginForm.get('identifier')?.errors &&
+          (loginForm.get('identifier')?.touched ||
+            inputIdentifier.value.length > 0)
+        "
+      >
+        <p
+          class="dang"
+          *ngIf="loginForm.get('identifier')?.getError('required')"
+        >
+          Identifier is required
+        </p>
+        <p
+          class="dang"
+          *ngIf="loginForm.get('identifier')?.getError('invalidIdentifier')"
+        >
+          Invalid format. Please enter a valid email (e.g.,user&#64;example.com)
+          or an Egyptian phone number starting with 010, 011, 012, or 015 and
+          exactly 11 digits.
+        </p>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <label>Password</label>
+      <input
+        type="password"
+        #inputPass
+        formControlName="password"
+        class="form-control"
+      />
+      <div
+        class="dang col mt-3"
+        *ngIf="
+          loginForm.get('password')?.errors &&
+          (loginForm.get('password')?.touched || inputPass.value.length > 0)
+        "
+      >
+        <p class="dang" *ngIf="loginForm.get('password')?.getError('required')">
+          password is Required
+        </p>
+        <p class="dang" *ngIf="loginForm.get('password')?.getError('pattern')">
+          Password must be at least 8 characters and contain at least one
+          uppercase letter, one lowercase letter, one number, and one special
+          character.
+        </p>
+      </div>
+    </div>
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="rememberMe"
+        [ngModelOptions]="{ standalone: true }"
+        [(ngModel)]="rememberMe"
+      />
+      <label class="form-check-label" for="rememberMe"> Remember Me </label>
+    </div>
+
+    <div class="col-12 text-center">
+      <button
+        type="submit"
+        class="btn"
+        [disabled]="isLoading"
+        style="
+          background-color: #562ddd;
+          color: white;
+          width: 70%;
+          font-size: 22px;
+          margin-top: 5px;
+          margin-bottom: 10px;
+        "
+      >
+        <ng-container *ngIf="isLoading; else loginText">
+          <span
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          Loading...
+        </ng-container>
+        <ng-template #loginText>Log In</ng-template>
+      </button>
+    </div>
+  </form>
+</div>

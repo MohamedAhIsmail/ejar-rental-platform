@@ -1,0 +1,562 @@
+<div class="p-4 position-relative">
+  <!-- Heading -->
+  <h4 class="fw-semibold mb-3">
+    <i class="bi bi-people me-2"></i>
+    Manage Users
+  </h4>
+
+  <!-- Floating Admin Tips Button -->
+  <button
+    class="btn btn-info btn-sm rounded-circle shadow position-absolute top-0 end-0 mt-4 me-4"
+    (click)="showTips = !showTips"
+    title="Toggle Admin Tips"
+    aria-label="Toggle Admin Tips"
+  >
+    <i
+      class="bi"
+      [ngClass]="{
+        'bi-lightbulb': !showTips,
+        'bi-lightbulb-fill': showTips
+      }"
+    ></i>
+  </button>
+
+  <!-- @if Floating Tips Panel -->
+  @if (showTips) {
+  <div
+    class="alert alert-info position-absolute top-0 end-0 me-5 mt-5 shadow animate__animated animate__fadeIn dash-alert"
+    style="z-index: 999; width: 400px"
+  >
+    <strong>🧠 Admin Tips:</strong><br />
+    - Use checkboxes for bulk delete.<br />
+    - Click <i class="bi bi-person-x-fill text-warning"></i> to <strong>ban or unverify</strong> a user.<br/>
+    - Click <i class="bi bi-trash"></i> to delete user.<br />
+    - Click <i class="bi bi-eye"></i> to preview ID.<br />
+    - Click <i class="bi bi-pencil-square"></i> to edit user.<br />
+    - Use filters/sorting to navigate efficiently.<br />
+    - Search by: <strong>Name</strong>,<strong>Email</strong>,<strong
+      >ID Number</strong
+    >.<br />
+    - Export list as CSV with one click.<br />
+    - Roles are color-coded for quick view.
+  </div>
+  }
+  <!-- Filters -->
+  <div class="d-flex gap-3 align-items-center mb-3 flex-wrap page-filter">
+    <input
+      class="form-control w-auto"
+      type="text"
+      [(ngModel)]="searchTerm"
+      placeholder="🔍 Search users..."
+    />
+    <select class="form-select w-auto" [(ngModel)]="filterVerified">
+      <option value="">All Users</option>
+      <option value="verified">Verified Emails</option>
+      <option value="unverified">Unverified Emails</option>
+    </select>
+
+    <select class="form-select w-auto" [(ngModel)]="sortOption">
+      <option value="name">Sort by Name</option>
+      <option value="newest">Newest First</option>
+      <option value="oldest">Oldest First</option>
+    </select>
+
+    <select class="form-select w-auto" [(ngModel)]="filterRole">
+      <option value="">All Roles</option>
+      <option value="user">Users Only</option>
+      <option value="admin">Admins Only</option>
+    </select>
+
+    <button class="btn btn-outline-success" (click)="exportToCSV()">
+      <i class="bi bi-download"></i> Export CSV
+    </button>
+
+    <button
+      class="btn btn-outline-danger"
+      [disabled]="!selectedUserIds.length"
+      (click)="bulkDeleteUsers()"
+    >
+      <i class="bi bi-trash3"></i> Delete Selected
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th><input type="checkbox" (change)="toggleAllUsers($event)" /></th>
+          <th>NAME</th>
+          <th>ID NUMBER</th>
+          <th>E-MAIL VERIFICATION</th>
+          <th>CREATED</th>
+          <th>ACTION</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tbody>
+        @if (loading) {
+          <tr *ngIf="loading">
+            <td colspan="10" class="text-center py-5 animate__animated animate__fadeIn">
+              <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <div class="mt-2 text-muted">Fetching users...</div>
+            </td>
+          </tr>
+        } @else if (paginatedUsers().length > 0) { @for (user of
+        paginatedUsers(); track user._id) {
+        <tr [class.table-info]="user._id === currentAdminId">
+          <td>
+            <input
+              type="checkbox"
+              [checked]="selectedUserIds.includes(user._id)"
+              (change)="toggleUserSelection(user._id)"
+              [disabled]="user._id === currentAdminId"
+              [attr.title]="
+                user._id === currentAdminId
+                  ? 'You cannot select yourself'
+                  : null
+              "
+            />
+          </td>
+          <td>
+            <div class="d-flex align-items-center">
+              <img
+                [src]="getProfilePictureUrl(user.profilePicture)"
+                class="rounded-circle me-2"
+                width="40"
+                height="40"
+                alt="avatar"
+                style="cursor: pointer"
+                (click)="
+                  openZoomModal(
+                    getProfilePictureUrl(user.profilePicture),
+                    user.userName + '\'s Profile Picture'
+                  )
+                "
+                (error)="onImageError($event)"
+              />
+              <div>
+                <span class="fw-semibold">{{ user.userName }}</span
+                ><br />
+                <small class="text-muted">{{ user.email }}</small
+                ><br />
+                <span
+                  class="badge me-2"
+                  [ngClass]="{
+                    'text-bg-success': user.role === 'admin',
+                    'text-bg-secondary': user.role === 'user'
+                  }"
+                >
+                  {{ user.role }}
+                </span>
+
+                @if (user._id === currentAdminId) {
+                <span class="badge bg-warning text-dark">👤 That's you</span>
+                }
+              </div>
+            </div>
+          </td>
+
+          <td>
+            {{ user.idNumber }}
+            <button
+              class="btn btn-link text-decoration-none p-0 ms-2 d-flex"
+              (click)="openIdImages(user)"
+              *ngIf="user.idPictureFrontPath && user.idPictureBackPath"
+            >
+              <i class="bi bi-eye px-1"></i> View ID
+            </button>
+          </td>
+          <td class="text-center">
+            <i
+              class="bi"
+              [ngClass]="{
+                'bi-check-circle-fill text-success': user.confirmEmail,
+                'bi-x-circle-fill text-danger': !user.confirmEmail
+              }"
+              title="{{
+                user.confirmEmail
+                  ? 'Email is verified'
+                  : 'Email is not verified'
+              }}"
+              style="font-size: 1.3rem; margin-left: -4rem"
+            ></i>
+          </td>
+
+          <td>{{ user.createdAt | date : "d MMM y" }}</td>
+
+          <td>
+            <button
+              class="btn btn-outline-primary btn-sm me-1"
+              (click)="openEditModal(user)"
+            >
+              <i class="bi bi-pencil-square"></i>
+            </button>
+            <button
+              class="btn btn-outline-danger btn-sm me-1"
+              [disabled]="user._id === currentAdminId"
+              (click)="confirmingDeleteUserId = user._id"
+            >
+              <i class="bi bi-trash"></i>
+            </button>
+
+              <button
+              class="btn btn-outline-warning btn-sm"
+              [disabled]="user._id === currentAdminId"
+              (click)="openToggleModal(user._id)"
+              title="Unverify / Ban"
+            >
+              <i class="bi bi-person-x-fill"></i>
+            </button>
+            </td>
+
+
+        </tr>
+        } } @else {
+          <tr>
+            <td colspan="10" class="text-center py-5 text-muted">
+              <i class="bi bi-inbox-fill fs-4 me-2 text-secondary"></i>
+              No matching users found.
+            </td>
+          </tr>
+
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- View ID Modal -->
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    *ngIf="selectedUser"
+    style="display: block"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">ID Pictures</h5>
+          <button
+            type="button"
+            class="btn-close"
+            (click)="closeIdImagesModal()"
+          ></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="row justify-content-center">
+            <div class="col-md-5 mb-3">
+              <h6>Front</h6>
+              <img
+              [src]="selectedUser.idPictureFrontPath"
+
+                class="img-fluid border rounded shadow"
+                style="max-height: 300px; cursor: zoom-in"
+                (click)="
+                  openZoomModal(
+                    selectedUser.idPictureFrontPath,
+                    'Front ID'
+                  )
+                "
+              />
+            </div>
+            <div class="col-md-5 mb-3">
+              <h6>Back</h6>
+              <img
+              [src]="selectedUser.idPictureBackPath"
+
+                class="img-fluid border rounded shadow"
+                style="max-height: 300px; cursor: zoom-in"
+                (click)="
+                  openZoomModal(
+                    selectedUser.idPictureBackPath,
+                    'Back ID'
+                  )
+                "
+              />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeIdImagesModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zoom Modal -->
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    *ngIf="zoomedImageUrl"
+    style="display: block; background: rgba(0, 0, 0, 0.7)"
+  >
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content bg-transparent border-0">
+        <div class="modal-header border-0">
+          <h5 class="text-white">{{ zoomedImageTitle }}</h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            (click)="closeZoomModal()"
+          ></button>
+        </div>
+        <div class="modal-body text-center">
+          <img
+            [src]="zoomedImageUrl"
+            (error)="onImageError($event)"
+            class="img-fluid rounded shadow-lg"
+            style="max-height: 90vh"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  @if (confirmingDeleteUserId) {
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block; background: rgba(0, 0, 0, 0.5)"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Confirm Deletion</h5>
+          <button class="btn-close" (click)="cancelDelete()"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p>
+            Are you sure you want to <strong>delete</strong> this user?<br />
+            This action cannot be undone.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cancelDelete()">
+            Cancel
+          </button>
+          <button class="btn btn-danger" (click)="proceedDelete()">
+            Yes, Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+  <!-- Bulk Delete Confirmation Modal -->
+  @if (showBulkDeleteConfirm) {
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block; background: rgba(0, 0, 0, 0.5)"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Confirm Bulk Deletion</h5>
+          <button class="btn-close" (click)="cancelBulkDelete()"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p>
+            You are about to
+            <strong>delete {{ selectedUserIds.length }}</strong> user(s).<br />
+            This action is permanent and cannot be undone.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cancelBulkDelete()">
+            Cancel
+          </button>
+          <button class="btn btn-danger" (click)="proceedBulkDelete()">
+            Yes, Delete All
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+  <!-- Edit User Modal -->
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    *ngIf="showEditModal"
+    style="display: block"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit User</h5>
+          <button class="btn-close" (click)="closeEditModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">User Name</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="editData.userName"
+              (blur)="validateField('userName')"
+            />
+            @if (formErrors['userName']) {
+            <small class="text-danger">{{ formErrors["userName"] }}</small>
+            }
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              [(ngModel)]="editData.email"
+              (blur)="validateField('email')"
+            />
+            @if (formErrors['email']) {
+            <small class="text-danger">{{ formErrors["email"] }}</small>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeEditModal()">
+            Cancel
+          </button>
+          <button class="btn btn-primary" (click)="updateUser()">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="d-flex justify-content-between align-items-center flex-wrap gap-2 table-pagination"
+  >
+    <!-- Showing Count and Page Size -->
+    <div
+      class="d-flex justify-content-between align-items-center flex-wrap gap-2"
+    >
+      <div class="small text-muted">
+        Showing {{ getShowingCount() }} of {{ filteredUsers().length }} users
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <label class="mb-0 small text-muted">Rows per page:</label>
+        <select
+          class="form-select form-select-sm w-auto"
+          [(ngModel)]="pageSize"
+          (change)="currentPage = 1"
+        >
+          @for (size of [5, 10, 20, 50]; track size) {
+          <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Pagination Buttons -->
+    <div class="d-flex justify-content-end align-items-center flex-wrap gap-2">
+      <ul class="pagination pagination-sm mb-0">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button
+            class="page-link"
+            (click)="currentPage = currentPage - 1"
+            aria-label="Previous"
+          >
+            &laquo;
+          </button>
+        </li>
+
+        @for (page of totalPagesArray(); track page) {
+        <li class="page-item" [class.active]="page === currentPage">
+          <button class="page-link" (click)="currentPage = page">
+            {{ page }}
+          </button>
+        </li>
+        }
+
+        <li class="page-item" [class.disabled]="currentPage === totalPages()">
+          <button
+            class="page-link"
+            (click)="currentPage = currentPage + 1"
+            aria-label="Next"
+          >
+            &raquo;
+          </button>
+        </li>
+      </ul>
+    </div>
+      <!-- Toggle Verification Modal -->
+  @if (confirmingToggleUserId) {
+    <div class="modal fade show" tabindex="-1" style="display: block; background: rgba(0, 0, 0, 0.5)">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-header">
+            <h5 class="modal-title text-warning">Confirm Action</h5>
+            <button class="btn-close" (click)="cancelToggleVerification()"></button>
+          </div>
+          <div class="modal-body text-center">
+            <p>
+              Are you sure you want to <strong>unverify</strong> (ban) this user?<br />
+              They will no longer be able to use the platform.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="cancelToggleVerification()">Cancel</button>
+            <button class="btn btn-warning" (click)="confirmToggleVerification()">Yes, Ban</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+    <!-- No Users to Export Modal -->
+    <div
+      class="modal fade show"
+      tabindex="-1"
+      *ngIf="showNoUsersModal"
+      style="display: block; background: rgba(0, 0, 0, 0.5)"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+          <div class="modal-header">
+            <h5 class="modal-title text-warning">Nothing to Export</h5>
+            <button
+              class="btn-close"
+              (click)="showNoUsersModal = false"
+            ></button>
+          </div>
+          <div class="modal-body text-center">
+            <p>There are no users matching your current filters to export.</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              class="btn btn-secondary"
+              (click)="showNoUsersModal = false"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    @if (showToast) {
+    <div
+      class="toast-container position-fixed bottom-0 end-0 p-3"
+      style="z-index: 9999"
+    >
+      <div
+        class="toast show align-items-center text-white"
+        [ngClass]="{
+          'bg-success': toastType === 'success',
+          'bg-danger': toastType === 'error'
+        }"
+      >
+        <div class="d-flex">
+          <div class="toast-body">{{ toastMessage }}</div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</div>
