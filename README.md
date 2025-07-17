@@ -66,3 +66,7 @@ This system was developed as part of our **graduation project** for the **ITI IC
 | Omar Abdeen   | [@OmarAbdeen](https://github.com/Test0-VC)             |
 
 ---
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).
